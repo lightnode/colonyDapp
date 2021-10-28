@@ -1,6 +1,5 @@
 import { all, call, fork, put } from 'redux-saga/effects';
 import { formatEther } from 'ethers/utils';
-import { Network } from '@colony/colony-js';
 
 import { WalletMethod } from '~immutable/index';
 import { createAddress } from '~utils/web3';
@@ -9,6 +8,7 @@ import {
   TEMP_getContext,
   TEMP_setContext,
   ContextModule,
+  UserSettings,
 } from '~context/index';
 import { putError } from '~utils/saga/effects';
 import { log } from '~utils/debug';
@@ -35,7 +35,7 @@ import { getWallet, setupUsersSagas } from '../../users/sagas/index';
 import { getGasPrices, reinitializeColonyManager } from './utils';
 import setupOnBeforeUnload from './setupOnBeforeUnload';
 import { setupUserBalanceListener } from './setupUserBalanceListener';
-import { GANACHE_NETWORK, DEFAULT_NETWORK } from '~constants';
+import { GANACHE_NETWORK } from '~constants';
 
 function* setupContextDependentSagas() {
   const appLoadingState: typeof AppLoadingState = AppLoadingState;
@@ -101,7 +101,10 @@ export default function* setupUserContext(
      * So for the purpouses of our development environment, the local network's
      * id is 1337 (the default chainId ganache sets)
      */
-    if (DEFAULT_NETWORK === Network.Local) {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      parseInt(walletNetworkId, 10) > 10000
+    ) {
       walletNetworkId = String(GANACHE_NETWORK.chainId);
     }
 
@@ -153,12 +156,27 @@ export default function* setupUserContext(
     // @TODO refactor setupUserContext for graphql
     // @BODY eventually we want to move everything to resolvers, so all of this has to happen outside of sagas. There is no need to have a separate state or anything, just set it up in an aync function (instead of WALLET_CREATE), then call this function
     const ipfsWithFallback = TEMP_getContext(ContextModule.IPFSWithFallback);
+
+    /*
+     * Get user settings and hydrate them in the context
+     *
+     * In case the user is just browsing and didn't log in (ethereal wallet),
+     * don't pass the address to the settings context, so as to not pollute
+     * the local storage namespace.
+     * This way it will save, and override all settings in the 000000... slot key
+     */
+    const userSettings = new UserSettings(
+      method !== WalletMethod.Ethereal ? wallet.address : null,
+    );
+    TEMP_setContext(ContextModule.UserSettings, userSettings);
+
     const userContext = {
       apolloClient,
       colonyManager,
       ens,
       wallet,
       ipfsWithFallback,
+      userSettings,
     };
     yield setupResolvers(apolloClient, userContext);
 
