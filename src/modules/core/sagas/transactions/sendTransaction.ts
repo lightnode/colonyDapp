@@ -18,7 +18,7 @@ import transactionChannel from './transactionChannel';
  * Given a method and a transaction record, create a promise for sending the
  * transaction with the method.
  */
-async function getMethodTransactionPromise(
+async function getTransactionMethodPromise(
   // @TODO this is not great but I feel like we will replace this anyways at some point
   client: ContractClient,
   tx: TransactionRecord,
@@ -42,12 +42,38 @@ async function getMethodTransactionPromise(
   return client[methodName](...[...params, sendOptions]);
 }
 
+async function getMetatransactionMethodPromise(
+  client: ContractClient,
+  tx: TransactionRecord,
+): Promise<TransactionResponse> {
+  // const {
+  //   methodName,
+  //   options: {
+  //     gasLimit: gasLimitOverride,
+  //     gasPrice: gasPriceOverride,
+  //     ...restOptions
+  //   },
+  //   params,
+  //   gasLimit,
+  //   gasPrice,
+  // } = tx;
+  // const sendOptions: TransactionOverrides = {
+  //   gasLimit: gasLimitOverride || gasLimit,
+  //   gasPrice: gasPriceOverride || gasPrice,
+  //   ...restOptions,
+  // };
+  // return client[methodName](...[...params, sendOptions]);
+  return {
+    hash: '0x937552ec0dc00db2c263817faff8e11fff8f76b25ee5293833b5eee4a903bede',
+  } as TransactionResponse;
+}
+
 export default function* sendTransaction({
   meta: { id },
 }: Action<ActionTypes.TRANSACTION_SEND>) {
   const transaction: TransactionRecord = yield selectAsJS(oneTransaction, id);
 
-  const { status, context, identifier } = transaction;
+  const { status, context, identifier, metatransaction } = transaction;
 
   if (status !== TRANSACTION_STATUSES.READY) {
     throw new Error('Transaction is not ready to send.');
@@ -55,8 +81,12 @@ export default function* sendTransaction({
   const colonyManager = TEMP_getContext(ContextModule.ColonyManager);
   const client = yield colonyManager.getClient(context, identifier);
 
+  const promiseMethod = metatransaction
+    ? getMetatransactionMethodPromise
+    : getTransactionMethodPromise;
+
   // Create a promise to send the transaction with the given method.
-  const txPromise = getMethodTransactionPromise(client, transaction);
+  const txPromise = promiseMethod(client, transaction);
 
   const channel = yield call(
     transactionChannel,
