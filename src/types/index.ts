@@ -85,6 +85,7 @@ export interface TxConfig {
   options?: TransactionOverrides;
   params?: MethodParams;
   ready?: boolean;
+  metatransaction?: boolean;
 }
 
 export interface TransactionResponse {
