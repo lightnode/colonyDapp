@@ -219,7 +219,10 @@ export const colonyActionsResolvers = ({
         const clientVersion = await colonyClient?.version();
         let annotation;
         if (clientVersion.toNumber() >= ColonyVersion.LightweightSpaceship) {
-          annotation = await getAnnotationFromSubgraph(from, hash);
+          annotation = await getAnnotationFromSubgraph(
+            actionValues?.actionInitiator || actionValues?.address || from,
+            hash,
+          );
         }
 
         return {
