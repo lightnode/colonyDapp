@@ -12,7 +12,11 @@ import { hexSequenceNormalizer } from '@purser/core';
 import { ActionTypes } from '~redux/index';
 import { selectAsJS } from '~utils/saga/effects';
 import { mergePayload } from '~utils/actions';
-import { TRANSACTION_STATUSES, TransactionRecord } from '~immutable/index';
+import {
+  TRANSACTION_STATUSES,
+  TRANSACTION_METHODS,
+  TransactionRecord,
+} from '~immutable/index';
 import { ContextModule, TEMP_getContext } from '~context/index';
 import { Action } from '~redux/types/actions';
 import { DEFAULT_NETWORK } from '~constants';
@@ -59,8 +63,23 @@ async function getMetatransactionMethodPromise(
 
   const availableNonce = await client.getMetatransactionNonce(wallet.address);
 
+  let normalizedMethodName: string;
+  switch (methodName) {
+    case TRANSACTION_METHODS.DeployToken:
+      normalizedMethodName = TRANSACTION_METHODS.DeployTokenViaNetwork;
+      break;
+    default:
+      normalizedMethodName = '';
+      break;
+  }
+
   // eslint-disable-next-line no-console
-  console.log('Transaction to send', client.clientType, methodName, params);
+  console.log(
+    'Transaction to send',
+    client.clientType,
+    normalizedMethodName,
+    params,
+  );
 
   /*
    * All the 'WithProofs' helpers don't really exist on chain, so we have to
@@ -71,7 +90,7 @@ async function getMetatransactionMethodPromise(
    * or just re-provide proofs (none of which is ideal)
    */
   const encodedTransaction = await client.interface.functions[
-    methodName
+    normalizedMethodName
   ].encode([...params]);
 
   // eslint-disable-next-line no-console
