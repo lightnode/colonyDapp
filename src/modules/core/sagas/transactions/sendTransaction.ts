@@ -20,6 +20,7 @@ import {
 import { ContextModule, TEMP_getContext } from '~context/index';
 import { Action } from '~redux/types/actions';
 import { DEFAULT_NETWORK } from '~constants';
+import { MethodParams } from '~types/index';
 
 import { transactionSendError } from '../../actionCreators';
 import { oneTransaction } from '../../selectors';
@@ -56,22 +57,45 @@ async function getTransactionMethodPromise(
 
 async function getMetatransactionMethodPromise(
   client: ContractClient,
-  { methodName, params }: TransactionRecord,
+  { methodName, params, identifier }: TransactionRecord,
 ): Promise<TransactionResponse> {
   const wallet = TEMP_getContext(ContextModule.Wallet);
-  const { provider } = client;
+  const { networkClient } = TEMP_getContext(ContextModule.ColonyManager);
 
-  const availableNonce = await client.getMetatransactionNonce(wallet.address);
+  let normalizedMethodName: string = methodName;
+  let normalizedClient: ContractClient = client;
+  let normalizedParams: MethodParams = params;
 
-  let normalizedMethodName: string;
   switch (methodName) {
+    /*
+     * For metatransactions we have to use the DeployTokenViaNetwork method
+     */
     case TRANSACTION_METHODS.DeployToken:
       normalizedMethodName = TRANSACTION_METHODS.DeployTokenViaNetwork;
       break;
+    /*
+     * DeployTokenAuthority is not available on the contracts in normal circumstances (we add it via colonyJS)
+     * But with metatransactions, it exits, but on a different client, with different params
+     * So we have to do this ugly switch-aroo just to make the different api happy :(
+     */
+    case TRANSACTION_METHODS.DeployTokenAuthority: {
+      normalizedClient = networkClient;
+      const [tokenAddress, allowedToTransfer] = params;
+      normalizedParams = [
+        tokenAddress,
+        identifier as string,
+        allowedToTransfer,
+      ];
+      break;
+    }
     default:
-      normalizedMethodName = '';
       break;
   }
+
+  const { provider } = normalizedClient;
+  const availableNonce = await normalizedClient.getMetatransactionNonce(
+    wallet.address,
+  );
 
   // eslint-disable-next-line no-console
   console.log(
@@ -89,9 +113,9 @@ async function getMetatransactionMethodPromise(
    * since we can't encode with that helper, we'll have to either find a way around this
    * or just re-provide proofs (none of which is ideal)
    */
-  const encodedTransaction = await client.interface.functions[
+  const encodedTransaction = await normalizedClient.interface.functions[
     normalizedMethodName
-  ].encode([...params]);
+  ].encode([...normalizedParams]);
 
   // eslint-disable-next-line no-console
   console.log('Encoded transaction', encodedTransaction);
@@ -112,7 +136,7 @@ async function getMetatransactionMethodPromise(
 
   const message = soliditySha3(
     { t: 'uint256', v: availableNonce.toString() },
-    { t: 'address', v: client.address },
+    { t: 'address', v: normalizedClient.address },
     { t: 'uint256', v: chainId },
     { t: 'bytes', v: encodedTransaction },
   ) as string;
@@ -151,7 +175,7 @@ async function getMetatransactionMethodPromise(
   const { r, s, v } = splitSignature(metatransactionSignature);
 
   const broadcastData = JSON.stringify({
-    target: client.address,
+    target: normalizedClient.address,
     payload: encodedTransaction,
     userAddress: wallet.address,
     r,

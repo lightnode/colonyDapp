@@ -262,15 +262,12 @@ function* colonyCreate({
     if (createToken) {
       const {
         payload: { deployedContractAddress, eventData },
-        meta: { metatransaction },
       } = yield takeFrom(
         createToken.channel,
         ActionTypes.TRANSACTION_SUCCEEDED,
       );
       tokenAddress = createAddress(
-        metatransaction
-          ? eventData.TokenDeployed.tokenAddress
-          : deployedContractAddress,
+        eventData?.TokenDeployed?.tokenAddress || deployedContractAddress,
       );
     } else {
       if (!givenTokenAddress) {
