@@ -1215,7 +1215,6 @@ export type ColonyExtensionDetails = {
 
 export type SubgraphColonyExtension = {
   id: Scalars['String'];
-  address: Scalars['String'];
   hash: Scalars['String'];
 };
 
@@ -1805,7 +1804,10 @@ export type SubgraphColonyQuery = { colony: (
     & { metadataHistory: Array<Pick<SubgraphColonyMetadata, 'id' | 'metadata'>>, token: (
       Pick<SubgraphToken, 'decimals' | 'symbol'>
       & { tokenAddress: SubgraphToken['id'] }
-    ), extensions?: Maybe<Array<Pick<SubgraphColonyExtension, 'address' | 'hash'>>> }
+    ), extensions?: Maybe<Array<(
+      Pick<SubgraphColonyExtension, 'hash'>
+      & { address: SubgraphColonyExtension['id'] }
+    )>> }
   ) };
 
 export type SubgraphColoniesQueryVariables = Exact<{
@@ -4545,7 +4547,7 @@ export const SubgraphColonyDocument = gql`
       symbol
     }
     extensions {
-      address
+      address: id
       hash
     }
   }
