@@ -55,6 +55,7 @@ import ExtensionStatus from './ExtensionStatus';
 import ExtensionUpgrade from './ExtensionUpgrade';
 import ExtensionUninstallConfirmDialog from './ExtensionUninstallConfirmDialog';
 import { ExtensionsMSG } from './extensionsMSG';
+import { useExtensionAvailable } from './utils';
 
 const MSG = defineMessages({
   title: {
@@ -153,6 +154,7 @@ const ExtensionDetails = ({
   const isNetworkAllowed = checkIfNetworkIsAllowed(networkId);
 
   const openUpgradeVersionDialog = useDialog(NetworkContractUpgradeDialog);
+  const { availableExtensionFilter } = useExtensionAvailable(colonyAddress);
 
   const { isVotingExtensionEnabled } = useEnabledExtensions({
     colonyAddress,
@@ -230,6 +232,15 @@ const ExtensionDetails = ({
       )
     : false;
 
+  const GENERATED_EXTENSIONS_ROUTE = `/colony/${colonyName}/extensions`;
+  /*
+   * @NOTE Temporary disable coin machine and whitelist for anyone other than
+   * the metacolony
+   */
+  if (!availableExtensionFilter(extensionId)) {
+    return <Redirect to={GENERATED_EXTENSIONS_ROUTE} />;
+  }
+
   let tableData;
 
   if (installedExtension) {
@@ -296,9 +307,9 @@ const ExtensionDetails = ({
     ];
   }
 
-  const extensionUrl = `/colony/${colonyName}/extensions/${extensionId}`;
+  const extensionUrl = `${GENERATED_EXTENSIONS_ROUTE}/${extensionId}`;
   const breadCrumbs: Crumb[] = [
-    [MSG.title, `/colony/${colonyName}/extensions`],
+    [MSG.title, GENERATED_EXTENSIONS_ROUTE],
     [extension.name, match.url === extensionUrl ? '' : extensionUrl],
   ];
 
