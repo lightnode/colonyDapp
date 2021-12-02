@@ -3,7 +3,7 @@ import { defineMessages } from 'react-intl';
 import { Extension } from '@colony/colony-js';
 
 import { useColonyExtensionsQuery, Colony } from '~data/index';
-import { useExtensionAvailable } from '../../Extensions/utils';
+import { useExtensionAvailable, METACOLONY_ENS } from '../../Extensions/utils';
 
 import NavItem from './NavItem';
 
@@ -25,6 +25,14 @@ const MSG = defineMessages({
   linkTextCoinMachine: {
     id: 'dashboard.ColonyHome.ColonyNavigation.linkTextCoinMachine',
     defaultMessage: 'Buy Tokens',
+  },
+  linkTextUnwrapTokens: {
+    id: 'dashboard.ColonyHome.ColonyNavigation.linkTextUnwrapTokens',
+    defaultMessage: 'Unwrap Tokens',
+  },
+  linkTextClaimTokens: {
+    id: 'dashboard.ColonyHome.ColonyNavigation.linkTextClaimTokens',
+    defaultMessage: 'Claim Tokens',
   },
   comingSoonMessage: {
     id: 'dashboard.ColonyNavigation.comingSoonMessage',
@@ -58,7 +66,7 @@ const ColonyNavigation = ({ colony: { colonyAddress, colonyName } }: Props) => {
   const { availableExtensionFilter } = useExtensionAvailable(colonyAddress);
 
   const items = useMemo<ComponentProps<typeof NavItem>[]>(() => {
-    const navigationItems = [
+    const navigationItems: ComponentProps<typeof NavItem>[] = [
       {
         linkTo: `/colony/${colonyName}`,
         showDot: hasNewActions,
@@ -103,6 +111,26 @@ const ColonyNavigation = ({ colony: { colonyAddress, colonyName } }: Props) => {
         });
       }
     }
+
+    if (colonyName === METACOLONY_ENS) {
+      navigationItems.push(
+        ...[
+          {
+            linkTo: `/colony/${colonyName}/unwrap-tokens`,
+            showDot: false,
+            text: MSG.linkTextUnwrapTokens,
+            disabled: true,
+          },
+          {
+            linkTo: `/colony/${colonyName}/claim-tokens`,
+            showDot: false,
+            text: MSG.linkTextClaimTokens,
+            disabled: true,
+          },
+        ],
+      );
+    }
+
     return navigationItems;
   }, [
     colonyName,
