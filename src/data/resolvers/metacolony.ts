@@ -17,7 +17,7 @@ export const metaColonyResolvers = ({
   Query: {
     async processedMetaColony() {
       try {
-        const metaColonyAddress = await networkClient.getMetaColony();
+        const metaColonyAddress = '0xA838cC8a369439091C320bEdFB6E339b66Ae8A6F';
         const metaColonyENSName = await networkClient.lookupRegisteredENSDomain(
           metaColonyAddress,
         );
