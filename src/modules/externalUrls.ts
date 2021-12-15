@@ -31,7 +31,6 @@ export const MD_OBJECTIONS_HELP = `https://colony.io/dev/docs/colonynetwork/whit
 /*
  * Token
  */
-export const TOKEN_ACTIVATION_INFO = `https://colony.gitbook.io/colony/key-concepts/token-activation`;
 export const TOKEN_UNLOCK_INFO = `https://colony.gitbook.io/colony/manage-funds/unlock-token`;
 
 /*

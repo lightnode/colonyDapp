@@ -2,12 +2,12 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 import { bigNumberify } from 'ethers/utils';
 import { Share } from 'react-twitter-widgets';
+import { addToken } from '@purser/metamask/lib-esm/helpers';
 
 import Decimal from 'decimal.js';
 import Heading from '~core/Heading';
 import TransactionLink from '~core/TransactionLink';
 import Button from '~core/Button';
-import ExternalLink from '~core/ExternalLink';
 import TimerValue from '~core/TimerValue';
 import { SpinnerLoader } from '~core/Preloaders';
 
@@ -25,7 +25,6 @@ import {
 import useSplitTime from '~utils/hooks/useSplitTime';
 
 import { DEFAULT_NETWORK_INFO } from '~constants';
-import { TOKEN_ACTIVATION_INFO } from '~externalUrls';
 
 import styles from './SaleStateWidget.css';
 
@@ -57,7 +56,7 @@ const MSG = defineMessages({
   },
   nextSale: {
     id: 'dashboard.CoinMachine.SaleStateWidget.nextSale',
-    defaultMessage: 'Next sale starts in',
+    defaultMessage: 'Next batch starts in:',
   },
   tryAgain: {
     id: 'dashboard.CoinMachine.SaleStateWidget.tryAgain',
@@ -81,7 +80,7 @@ const MSG = defineMessages({
   },
   saleFailedSubtext: {
     id: 'dashboard.CoinMachine.SaleStateWidget.saleFailedSubtext',
-    defaultMessage: 'Please try again, if there is still time and tokens left.',
+    defaultMessage: 'Please try again in the next batch.',
   },
   loadingTitle: {
     id: 'dashboard.CoinMachine.SaleStateWidget.loadingTitle',
@@ -112,10 +111,6 @@ const MSG = defineMessages({
     defaultMessage:
       'Unfortunately, something went wrong and your transaction failed.',
   },
-  transactionFailedSubtext: {
-    id: 'dashboard.CoinMachine.SaleStateWidget.transactionFailedSubtext',
-    defaultMessage: 'Try increasing your gas price.',
-  },
   successTitle: {
     id: 'dashboard.CoinMachine.SaleStateWidget.successTitle',
     defaultMessage: `Success! 🎉`,
@@ -126,11 +121,7 @@ const MSG = defineMessages({
   },
   successText: {
     id: 'dashboard.CoinMachine.SaleStateWidget.successText',
-    defaultMessage: `Congratulations! You have made a considerably wise purchase. Please {activateLink} your tokens so they're ready to use.`,
-  },
-  activate: {
-    id: 'dashboard.CoinMachine.SaleStateWidget.activate',
-    defaultMessage: `activate`,
+    defaultMessage: `Congratulations! You have made a considerably wise purchase. Please add {tokenSymbol} to your Metamask, to see your tokens.`,
   },
   partialSuccessTitle: {
     id: 'dashboard.CoinMachine.SaleStateWidget.partialSuccessTitle',
@@ -217,6 +208,17 @@ const SaleStateWidget = ({
     }
   }, [state, splitTime, showTimeCountdown, timeLeftToNextSale]);
 
+  const handleAddAssetToMetamask = useCallback(
+    () =>
+      addToken({
+        // @ts-ignore
+        address: sellableToken?.address,
+        symbol: sellableToken?.symbol,
+        decimals: sellableToken?.decimals,
+      }),
+    [sellableToken],
+  );
+
   useEffect(() => {
     if (!salePriceData) return;
     if (boughtTokensData && transactionAmountData) {
@@ -245,11 +247,19 @@ const SaleStateWidget = ({
 
       if (!transactionSucceed) {
         setState(SaleState.TransactionFailed);
-      } else if (bigNumberify(numTokens).isZero()) {
+        return;
+      }
+
+      if (!!numTokens && bigNumberify(numTokens).isZero()) {
         setState(SaleState.SaleFailed);
-      } else if (bigNumberify(transactionAmount).gt(numTokens)) {
+        setDecimalAmount(formattedAmount);
+        setCost(formattedPrice);
+        return;
+      }
+
+      if (bigNumberify(transactionAmount).gt(bigNumberify(numTokens || '0'))) {
         formattedAmount = getFormattedTokenValue(
-          numTokens,
+          numTokens || '0',
           sellableToken?.decimals,
         );
         formattedPrice = getFormattedTokenValue(
@@ -257,9 +267,13 @@ const SaleStateWidget = ({
           purchaseToken?.decimals,
         );
         setState(SaleState.PartialSuccess);
-      } else {
-        setState(SaleState.Success);
+        setDecimalAmount(formattedAmount);
+        setCost(formattedPrice);
+        return;
       }
+
+      setState(SaleState.Success);
+
       setDecimalAmount(formattedAmount);
       setCost(formattedPrice);
     }
@@ -320,11 +334,11 @@ const SaleStateWidget = ({
         <FormattedMessage
           {...MSG[`${state}Text`]}
           values={{
-            activateLink: (
-              <ExternalLink
-                text={MSG.activate}
-                className={styles.blockExplorer}
-                href={TOKEN_ACTIVATION_INFO}
+            tokenSymbol: (
+              <Button
+                appearance={{ theme: 'blue' }}
+                text={sellableToken?.symbol || '???'}
+                onClick={handleAddAssetToMetamask}
               />
             ),
           }}

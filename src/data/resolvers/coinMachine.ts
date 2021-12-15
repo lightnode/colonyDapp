@@ -137,10 +137,15 @@ export const coinMachineResolvers = ({
             };
           }),
         );
-        const [lastBoughtTokensEvent] = boughtTokensEvents.reverse();
+
+        const lastBoughtTokensEvent = boughtTokensEvents.find(
+          ({ transactionHash: eventTransactionHash }) =>
+            eventTransactionHash === transactionHash,
+        );
 
         return {
-          numTokens: lastBoughtTokensEvent?.values.numTokens?.toString() || '0',
+          numTokens:
+            lastBoughtTokensEvent?.values.numTokens?.toString() || undefined,
           totalCost: lastBoughtTokensEvent?.values.totalCost?.toString() || '0',
         };
       } catch (error) {
