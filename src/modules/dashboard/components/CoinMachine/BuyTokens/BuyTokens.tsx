@@ -108,12 +108,12 @@ interface FormValues {
 
 const displayName = 'dashboard.CoinMachine.BuyTokens';
 
-const validationSchema = (userBalance: string, tokenDecimals: number) => {
-  const uncappedUserBalance = new Decimal(userBalance).div(
+const validationSchema = (maxUserPurchase: string, tokenDecimals: number) => {
+  const uncappedUserBalance = new Decimal(maxUserPurchase).div(
     new Decimal(10).pow(tokenDecimals),
   );
   const formattedUserBalance = getFormattedTokenValue(
-    userBalance,
+    maxUserPurchase,
     tokenDecimals,
   );
 
@@ -143,7 +143,7 @@ const BuyTokens = ({
   loadingSalePrice,
   loadingMaxUserPurchase,
 }: Props) => {
-  const { username, ethereal, walletAddress } = useLoggedInUser();
+  const { username, ethereal, walletAddress, balance } = useLoggedInUser();
   const history = useHistory();
 
   const userHasProfile = !!username && !ethereal;
@@ -187,8 +187,18 @@ const BuyTokens = ({
     ({ address: userTokenAddress }) =>
       userTokenAddress === purchaseToken?.address,
   );
+  const userBalance = bigNumberify(
+    new Decimal(balance)
+      .mul(
+        new Decimal(10).pow(
+          getTokenDecimalsWithFallback(purchaseToken?.decimals),
+        ),
+      )
+      .round()
+      .toString(),
+  );
   const userPurchaseTokenBalance = getFormattedTokenValue(
-    userPurchaseToken?.balance || '0',
+    userBalance || '0',
     purchaseToken?.decimals || 18,
   );
 
@@ -199,8 +209,10 @@ const BuyTokens = ({
 
   const getFormattedCost = useCallback(
     (amount) => {
-      const decimalCost = new Decimal(amount)
-        .times(salePriceData?.coinMachineCurrentPeriodPrice || '0')
+      const decimalCost = new Decimal(
+        amount.startsWith('.') ? `0${amount}` : amount,
+      )
+        .times(salePriceData?.coinMachineCurrentPeriodPrice || '1')
         .toFixed(0, Decimal.ROUND_HALF_UP);
 
       return getFormattedTokenValue(
@@ -246,8 +258,9 @@ const BuyTokens = ({
       purchaseToken
     ) {
       const userTokenBalance = bigNumberify(userPurchaseToken.balance);
-      const maxContractPurchase =
-        maxUserPurchaseData.coinMachineCurrentPeriodMaxUserPurchase;
+      const maxContractPurchase = bigNumberify(
+        maxUserPurchaseData.coinMachineCurrentPeriodMaxUserPurchase,
+      );
       const currentPeriodPrice = bigNumberify(
         salePriceData?.coinMachineCurrentPeriodPrice || 0,
       );
@@ -255,18 +268,13 @@ const BuyTokens = ({
         ? currentPeriodPrice
         : bigNumberify(1);
 
-      const maxUserBalancePurchase = userTokenBalance
-        .div(currentPrice)
-        /*
-        when we divide by a number with moved decimal our final number
-        gets smaller by the '10 * the number of 0 that are added'
-        so we need to counteract it by multiplying it back
-         */
-        .mul(
-          bigNumberify(10).pow(
-            getTokenDecimalsWithFallback(purchaseToken.decimals),
-          ),
-        );
+      const maxUserBalancePurchase = bigNumberify(
+        new Decimal(userTokenBalance.toString())
+          .div(new Decimal(currentPrice.toString()))
+          .mul('1000000000000000000')
+          .round()
+          .toString(),
+      );
       if (maxUserBalancePurchase.gt(maxContractPurchase)) {
         return bigNumberify(maxContractPurchase);
       }
@@ -281,24 +289,34 @@ const BuyTokens = ({
         event.preventDefault();
         event.stopPropagation();
 
-        const maxAmount = new Decimal(maxUserPurchase.toString())
-          .div(
-            new Decimal(10).pow(
-              getTokenDecimalsWithFallback(sellableTokenDecimals),
-            ),
-          )
-          .toString();
         /*
          * @NOTE This will set the max amount a user can buy
          * Either the max tokens available this period, or the user's total purchase
          * tokens balance, whichever is smaller
          */
-        setFieldValue('amount', maxAmount);
+        setFieldValue(
+          'amount',
+          getFormattedTokenValue(
+            maxUserPurchase,
+            sellableTokenDecimals,
+          ).includes('...')
+            ? '0.00000'
+            : getFormattedTokenValue(
+                maxUserPurchase,
+                sellableTokenDecimals,
+              ).includes('...'),
+        );
       }
     },
     [globalDisable, maxUserPurchase, sellableTokenDecimals],
   );
   const handleFormReset = useCallback((resetForm) => resetForm(), []);
+
+  const handleEmptyDecimal = useCallback((event, setFieldValue) => {
+    if (event.target.value.startsWith('.')) {
+      setFieldValue('amount', '0.');
+    }
+  }, []);
 
   const transform = useCallback(
     pipe(
@@ -401,6 +419,9 @@ const BuyTokens = ({
                       label={MSG.amountLabel}
                       name="amount"
                       disabled={globalDisable || isSoldOut}
+                      onChange={(event) =>
+                        handleEmptyDecimal(event, setFieldValue)
+                      }
                       elementOnly
                     />
                     {errors?.amount && (
