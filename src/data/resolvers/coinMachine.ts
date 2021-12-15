@@ -108,27 +108,17 @@ export const coinMachineResolvers = ({
     async coinMachineBoughtTokens(_, { colonyAddress, transactionHash }) {
       const { provider } = colonyManager.networkClient;
       try {
-        const { blockHash } = await provider.getTransaction(transactionHash);
+        const { logs = [] } = await provider.getTransactionReceipt(
+          transactionHash,
+        );
 
         const coinMachineClient = await colonyManager.getClient(
           ClientType.CoinMachineClient,
           colonyAddress,
         );
 
-        const boughtTokensFilter = coinMachineClient.filters.TokensBought(
-          null,
-          null,
-          null,
-        );
-
-        const boughtTokensLogs = await getLogs(
-          coinMachineClient,
-          boughtTokensFilter,
-          { blockHash },
-        );
-
         const boughtTokensEvents = await Promise.all(
-          boughtTokensLogs.map(async (log) => {
+          logs.map(async (log) => {
             const parsedLog = coinMachineClient.interface.parseLog(log);
             const { transactionHash: currentLogTransactionHash } = log;
             return {
@@ -138,10 +128,12 @@ export const coinMachineResolvers = ({
           }),
         );
 
-        const lastBoughtTokensEvent = boughtTokensEvents.find(
-          ({ transactionHash: eventTransactionHash }) =>
-            eventTransactionHash === transactionHash,
-        );
+        const lastBoughtTokensEvent = boughtTokensEvents
+          .filter((log) => log?.name === 'TokensBought')
+          .find(
+            ({ transactionHash: eventTransactionHash }) =>
+              eventTransactionHash === transactionHash,
+          );
 
         return {
           numTokens:

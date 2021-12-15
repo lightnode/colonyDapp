@@ -254,7 +254,6 @@ const SaleStateWidget = ({
         setState(SaleState.SaleFailed);
         setDecimalAmount(formattedAmount);
         setCost(formattedPrice);
-        return;
       }
 
       if (bigNumberify(transactionAmount).gt(bigNumberify(numTokens || '0'))) {
@@ -269,13 +268,13 @@ const SaleStateWidget = ({
         setState(SaleState.PartialSuccess);
         setDecimalAmount(formattedAmount);
         setCost(formattedPrice);
-        return;
       }
 
-      setState(SaleState.Success);
-
-      setDecimalAmount(formattedAmount);
-      setCost(formattedPrice);
+      if (bigNumberify(transactionAmount).eq(bigNumberify(numTokens || '0'))) {
+        setState(SaleState.Success);
+        setDecimalAmount(formattedAmount);
+        setCost(formattedPrice);
+      }
     }
   }, [
     boughtTokensData,
