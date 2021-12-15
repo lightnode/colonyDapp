@@ -302,10 +302,7 @@ const BuyTokens = ({
             sellableTokenDecimals,
           ).includes('...')
             ? '0.00000'
-            : getFormattedTokenValue(
-                maxUserPurchase,
-                sellableTokenDecimals,
-              ).includes('...'),
+            : getFormattedTokenValue(maxUserPurchase, sellableTokenDecimals),
         );
       }
     },
