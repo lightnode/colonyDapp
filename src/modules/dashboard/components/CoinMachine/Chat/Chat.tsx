@@ -59,7 +59,7 @@ const Chat = ({
   colony: { colonyAddress },
   transactionHash,
   disabled,
-  limit = 1000,
+  limit = 100,
 }: Props) => {
   const scrollElmRef = useRef<HTMLDivElement | null>(null);
 
