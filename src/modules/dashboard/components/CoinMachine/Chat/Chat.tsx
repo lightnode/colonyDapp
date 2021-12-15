@@ -121,8 +121,12 @@ const Chat = ({
 
   const filteredComments = useMemo(() => {
     const comments = data?.transactionMessages?.messages || [];
-    return commentTransformer(comments, walletAddress, canAdministerComments);
-  }, [canAdministerComments, data, walletAddress]);
+    return commentTransformer(
+      comments.slice(comments.length - limit),
+      walletAddress,
+      canAdministerComments,
+    );
+  }, [canAdministerComments, data, limit, walletAddress]);
 
   if (loading || loadingCoinMachineWhitelistState || userStatusLoading) {
     return (
