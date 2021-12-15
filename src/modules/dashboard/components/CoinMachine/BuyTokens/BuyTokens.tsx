@@ -15,6 +15,7 @@ import Numeral from '~core/Numeral';
 import Button from '~core/Button';
 import EthUsd from '~core/EthUsd';
 import { SpinnerLoader } from '~core/Preloaders';
+import InfoPopover from '~core/InfoPopover';
 
 import {
   Colony,
@@ -135,7 +136,7 @@ const validationSchema = (maxUserPurchase: string, tokenDecimals: number) => {
 };
 
 const BuyTokens = ({
-  colony: { colonyAddress, colonyName },
+  colony: { colonyAddress, colonyName, nativeTokenAddress },
   isCurrentlyOnSale,
   isSoldOut,
   salePriceData,
@@ -495,7 +496,25 @@ const BuyTokens = ({
                     </div>
                   </div>
                   <div className={styles.symbols}>
-                    {`${purchaseToken?.symbol}/${sellableToken?.symbol}`}
+                    <>
+                      <InfoPopover
+                        token={purchaseToken}
+                        isTokenNative={
+                          purchaseToken?.address === nativeTokenAddress
+                        }
+                      >
+                        <span>{purchaseToken?.symbol}</span>
+                      </InfoPopover>
+                      /
+                      <InfoPopover
+                        token={sellableToken}
+                        isTokenNative={
+                          sellableToken?.address === nativeTokenAddress
+                        }
+                      >
+                        <span>{sellableToken?.symbol}</span>
+                      </InfoPopover>
+                    </>
                   </div>
                 </div>
                 <div className={styles.amountsContainer}>
@@ -538,9 +557,16 @@ const BuyTokens = ({
                       }
                     </div>
                   </div>
-                  <div
-                    className={styles.symbols}
-                  >{`${purchaseToken?.symbol}`}</div>
+                  <div className={styles.symbols}>
+                    <InfoPopover
+                      token={purchaseToken}
+                      isTokenNative={
+                        purchaseToken?.address === nativeTokenAddress
+                      }
+                    >
+                      <span>{purchaseToken?.symbol}</span>
+                    </InfoPopover>
+                  </div>
                 </div>
                 <div className={styles.controls}>
                   {isWhitelistExtensionEnabled && !isUserWhitelisted ? (
