@@ -401,6 +401,7 @@ export const getActionsListData = (
 
 export const getEventsListData = (
   unformattedEvents?: SubgraphEventsSubscription,
+  coinMachineSellToken?: Address,
 ): FormattedEvent[] | undefined =>
   unformattedEvents?.events?.reduce((processedEvents, event) => {
     if (!event) {
@@ -474,12 +475,16 @@ export const getEventsListData = (
         }
         return checksummedColonyAddress;
       };
+      const eventName = formatEventName(name);
+      const tokenAddress = ColonyAndExtensionsEvents.TokensBought
+        ? coinMachineSellToken
+        : token;
       return [
         ...processedEvents,
         {
           id,
           agent: getAgent(),
-          eventName: formatEventName(name),
+          eventName,
           transactionHash: hash,
           colonyAddress: checksummedColonyAddress,
           createdAt: new Date(parseInt(`${timestamp}000`, 10)),
@@ -489,7 +494,7 @@ export const getEventsListData = (
           recipient: getRecipient(),
           fundingPot: fundingPotId,
           metadata,
-          tokenAddress: token ? createAddress(token) : null,
+          tokenAddress: tokenAddress ? createAddress(tokenAddress) : null,
           paymentId,
           decimals: parseInt(decimals, 10),
           amount: amount || payoutRemainder || numTokens || '0',

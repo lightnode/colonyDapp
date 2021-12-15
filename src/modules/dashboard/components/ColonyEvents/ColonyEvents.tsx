@@ -13,6 +13,7 @@ import {
   Colony,
   useSubgraphEventsSubscription,
   SubgraphEventsSubscription,
+  useCoinMachineSaleTokensQuery,
 } from '~data/index';
 import { getEventsListData } from '../../transformers';
 import { useTransformer } from '~utils/hooks';
@@ -73,8 +74,20 @@ const ColonyEvents = ({
 
   if (error) console.error(error);
 
+  const {
+    data: saleTokensData,
+    loading: saleTokensLoading,
+  } = useCoinMachineSaleTokensQuery({
+    variables: { colonyAddress },
+  });
+  const coinMachineSellToken =
+    saleTokensData?.coinMachineSaleTokens?.sellableToken?.address;
+
   const events =
-    useTransformer(getEventsListData, [{ events: streamedEvents }]) || [];
+    useTransformer(getEventsListData, [
+      { events: streamedEvents },
+      coinMachineSellToken,
+    ]) || [];
 
   const sort = useCallback(
     (first: any, second: any) => {
@@ -136,7 +149,7 @@ const ColonyEvents = ({
           />
         </div>
       </Form>
-      {subgraphEventsLoading && !sortedEvents ? (
+      {subgraphEventsLoading && saleTokensLoading && !sortedEvents ? (
         <SpinnerLoader />
       ) : (
         <ActionsList

@@ -129,7 +129,7 @@ export const coinMachineResolvers = ({
         );
 
         const lastBoughtTokensEvent = boughtTokensEvents
-          .filter((log) => log?.name === 'TokensBought')
+          .filter((log) => log?.name === ColonyAndExtensionsEvents.TokensBought)
           .find(
             ({ transactionHash: eventTransactionHash }) =>
               eventTransactionHash === transactionHash,
