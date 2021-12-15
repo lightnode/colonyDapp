@@ -49,6 +49,7 @@ interface Props {
   colony: Colony;
   transactionHash: string;
   disabled?: boolean;
+  limit?: number;
 }
 
 const displayName = 'dashboard.CoinMachine.Chat';
@@ -58,6 +59,7 @@ const Chat = ({
   colony: { colonyAddress },
   transactionHash,
   disabled,
+  limit = 1000,
 }: Props) => {
   const scrollElmRef = useRef<HTMLDivElement | null>(null);
 
@@ -109,7 +111,7 @@ const Chat = ({
   }, [scrollComments]);
 
   const { data, loading } = useCommentsSubscription({
-    variables: { transactionHash },
+    variables: { transactionHash, limit },
   });
 
   /*

@@ -370,6 +370,7 @@ const CoinMachine = ({
             colony={colony}
             transactionHash={coinMachineExtension.address}
             disabled={DISABLE_CHAT}
+            limit={100}
           />
         </div>
       </div>
