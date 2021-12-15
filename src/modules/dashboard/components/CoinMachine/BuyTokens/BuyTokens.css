@@ -75,6 +75,7 @@
   align-self: flex-start;
   margin: 25px 0 0 14px;
   width: 70px;
+  cursor: pointer;
 }
 
 .userBalance, .userBalance span {

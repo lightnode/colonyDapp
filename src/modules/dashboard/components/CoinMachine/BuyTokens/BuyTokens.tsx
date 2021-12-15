@@ -454,12 +454,19 @@ const BuyTokens = ({
                       </div>
                     )}
                   </div>
-                  <span
-                    className={styles.nativeToken}
-                    title={sellableToken?.name || undefined}
+                  <InfoPopover
+                    token={sellableToken}
+                    isTokenNative={
+                      purchaseToken?.address === nativeTokenAddress
+                    }
                   >
-                    {sellableToken?.symbol}
-                  </span>
+                    <span
+                      className={styles.nativeToken}
+                      title={sellableToken?.name || undefined}
+                    >
+                      {sellableToken?.symbol}
+                    </span>
+                  </InfoPopover>
                 </div>
                 <div className={styles.amountsContainer}>
                   <div className={styles.amounts}>
