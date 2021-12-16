@@ -59,7 +59,6 @@ type Props = {
 
 const displayName = 'dashboard.CoinMachine';
 
-const DISABLE_CHAT = false;
 const SHARE_ENABLED = true;
 
 const CoinMachine = ({
@@ -366,12 +365,7 @@ const CoinMachine = ({
           />
         </div>
         <div className={styles.comments}>
-          <Chat
-            colony={colony}
-            transactionHash={coinMachineExtension.address}
-            disabled={DISABLE_CHAT}
-            limit={100}
-          />
+          <Chat />
         </div>
       </div>
     </div>
