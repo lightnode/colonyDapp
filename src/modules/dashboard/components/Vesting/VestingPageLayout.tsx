@@ -32,6 +32,7 @@ interface Props {
   }[];
   tokenDecimals: number;
   isLoading: boolean;
+  buttonDisabled?: boolean;
 }
 
 const VestingPageLayout = ({
@@ -43,6 +44,7 @@ const VestingPageLayout = ({
   isLoading,
   isSubmitting,
   handleSubmit,
+  buttonDisabled = false,
 }: Props & FormikProps<{}>) => {
   const { username: currentUserName, ethereal } = useLoggedInUser();
 
@@ -73,7 +75,7 @@ const VestingPageLayout = ({
           textValues={buttonTextValues}
           onClick={() => handleSubmit()}
           loading={isSubmitting}
-          disabled={!currentUserName || ethereal}
+          disabled={buttonDisabled || !currentUserName || ethereal}
         />
       </div>
     </div>

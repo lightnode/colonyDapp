@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { FormikProps } from 'formik';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Redirect, RouteChildrenProps, useParams } from 'react-router-dom';
+import { bigNumberify } from 'ethers/utils';
 
 import { ActionForm } from '~core/Fields';
 import Heading from '~core/Heading';
@@ -16,7 +17,7 @@ import {
 } from '~data/index';
 import { ActionTypes } from '~redux/actionTypes';
 import { NOT_FOUND_ROUTE } from '~routes/index';
-import { pipe, mapPayload } from '~utils/actions';
+import { mapPayload } from '~utils/actions';
 import { getTokenDecimalsWithFallback } from '~utils/tokens';
 
 import VestingPageLayout from './VestingPageLayout';
@@ -87,14 +88,12 @@ const UnwrapTokensPage = ({ match }: Props) => {
     wrappedTokenData?.unwrapTokenForMetacolony || {};
 
   const transform = useCallback(
-    pipe(
-      mapPayload((payload) => {
-        return {
-          ...payload,
-          colonyAddress: data?.processedColony?.colonyAddress,
-        };
-      }),
-    ),
+    mapPayload(() => ({
+      amount: wrappedToken?.balance || 0,
+      userAddress: walletAddress,
+      unwrappedTokenAddress: unwrappedToken?.address,
+      colonyAddress: data?.processedColony?.colonyAddress,
+    })),
     [data],
   );
 
@@ -179,6 +178,7 @@ const UnwrapTokensPage = ({ match }: Props) => {
             tokenSymbol: wrappedToken?.symbol || UNKNOWN_TOKEN_SYMBOL,
           }}
           tokenDecimals={getTokenDecimalsWithFallback(wrappedToken?.decimals)}
+          buttonDisabled={bigNumberify(wrappedToken?.balance || 0).isZero()}
         />
       )}
     </ActionForm>
