@@ -25,7 +25,6 @@ import {
 
 import { CM_LEARN_MORE, CM_GET_WHITELISTED } from '~externalUrls';
 
-import Chat from './Chat';
 import SaleStateWidget from './SaleStateWidget';
 import BuyTokens from './BuyTokens';
 import Confetti from './Confetti';
@@ -364,9 +363,7 @@ const CoinMachine = ({
             periodTokens={periodTokens}
           />
         </div>
-        <div className={styles.comments}>
-          <Chat />
-        </div>
+        <div className={styles.comments} />
       </div>
     </div>
   );
