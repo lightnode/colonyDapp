@@ -6,6 +6,8 @@ import Button from '~core/Button';
 
 import Numeral from '~core/Numeral';
 import { SpinnerLoader } from '~core/Preloaders';
+
+import { useLoggedInUser } from '~data/index';
 import { SimpleMessageValues } from '~types/index';
 import { getFormattedTokenValue } from '~utils/tokens';
 
@@ -42,6 +44,8 @@ const VestingPageLayout = ({
   isSubmitting,
   handleSubmit,
 }: Props & FormikProps<{}>) => {
+  const { username: currentUserName, ethereal } = useLoggedInUser();
+
   return isLoading ? (
     <div className={styles.loader}>
       <SpinnerLoader
@@ -69,6 +73,7 @@ const VestingPageLayout = ({
           textValues={buttonTextValues}
           onClick={() => handleSubmit()}
           loading={isSubmitting}
+          disabled={!currentUserName || ethereal}
         />
       </div>
     </div>
