@@ -20,6 +20,7 @@ interface Props {
   isTotalSale: boolean;
   appearance?: Appearance;
   tokenAmounts?: PeriodTokensType;
+  salePaused?: boolean;
 }
 
 const displayName =
@@ -48,12 +49,17 @@ const MSG = defineMessages({
     id: 'dashboard.CoinMachine.RemainingDisplayWidgets.RemainingTokens.soldOut',
     defaultMessage: 'SOLD OUT',
   },
+  salePaused: {
+    id: `dashboard.CoinMachine.RemainingDisplayWidgets.ReimainingTime.salePaused`,
+    defaultMessage: 'Sale ended',
+  },
 });
 
 const RemainingTokens = ({
   isTotalSale,
   appearance = { theme: 'white' },
   tokenAmounts,
+  salePaused = false,
 }: Props) => {
   const widgetText = useMemo(() => {
     return {
@@ -88,7 +94,15 @@ const RemainingTokens = ({
       widgetText={widgetText}
       appearance={appearance}
       isWarning={showValueWarning}
-      displayedValue={displayedValue}
+      displayedValue={
+        salePaused ? (
+          <span>
+            <FormattedMessage {...MSG.salePaused} />
+          </span>
+        ) : (
+          displayedValue
+        )
+      }
       isTotalSale={isTotalSale}
     />
   );

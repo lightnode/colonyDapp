@@ -21,6 +21,7 @@ type Props = {
   appearance?: Appearance;
   periodLength: number;
   syncing?: boolean;
+  salePaused?: boolean;
 };
 
 const displayName =
@@ -43,6 +44,10 @@ const MSG = defineMessages({
     id: `dashboard.CoinMachine.RemainingDisplayWidgets.ReimainingTime.comeBackTitle`,
     defaultMessage: 'Come back in...',
   },
+  salePaused: {
+    id: `dashboard.CoinMachine.RemainingDisplayWidgets.ReimainingTime.salePaused`,
+    defaultMessage: 'Sale ended',
+  },
 });
 
 const RemainingTime = ({
@@ -51,6 +56,7 @@ const RemainingTime = ({
   periodLength,
   colonyAddress,
   syncing = false,
+  salePaused = false,
 }: Props) => {
   const dispatch = useDispatch();
 
@@ -103,8 +109,16 @@ const RemainingTime = ({
     <RemainingDisplayWidget
       widgetText={widgetText}
       appearance={appearance}
-      isWarning={showValueWarning}
-      displayedValue={displayedValue}
+      isWarning={salePaused ? false : showValueWarning}
+      displayedValue={
+        salePaused ? (
+          <span>
+            <FormattedMessage {...MSG.salePaused} />
+          </span>
+        ) : (
+          displayedValue
+        )
+      }
     />
   );
 };

@@ -261,13 +261,8 @@ const CoinMachine = ({
    * Only allow access to the Coin Machine page, if the extension is:
    * - installed
    * - enable
-   * - not deprecated
    */
-  if (
-    !coinMachineExtension ||
-    !coinMachineExtension?.details?.initialized ||
-    coinMachineExtension?.details?.deprecated
-  ) {
+  if (!coinMachineExtension || !coinMachineExtension?.details?.initialized) {
     return <Redirect to={`/colony/${colonyName}`} />;
   }
 
@@ -326,6 +321,7 @@ const CoinMachine = ({
                 maxUserPurchaseData={maxUserPurchaseData}
                 loadingSalePrice={loadingSalePrice}
                 loadingMaxUserPurchase={loadingMaxUserPurchase}
+                salePaused={coinMachineExtension?.details?.deprecated}
               />
             </div>
             <div className={styles.timeRemaining}>
@@ -335,16 +331,22 @@ const CoinMachine = ({
                 periodLength={periodLength}
                 colonyAddress={colonyAddress}
                 syncing={currentSalePeriodLoading}
+                salePaused={coinMachineExtension?.details?.deprecated}
               />
             </div>
             <div className={styles.tokensRemaining}>
               <RemainingTokens
                 tokenAmounts={periodTokens}
                 isTotalSale={false}
+                salePaused={coinMachineExtension?.details?.deprecated}
               />
             </div>
             <div className={styles.tokensTotals}>
-              <RemainingTokens tokenAmounts={totalTokens} isTotalSale />
+              <RemainingTokens
+                tokenAmounts={totalTokens}
+                isTotalSale
+                salePaused={coinMachineExtension?.details?.deprecated}
+              />
             </div>
           </>
         )}

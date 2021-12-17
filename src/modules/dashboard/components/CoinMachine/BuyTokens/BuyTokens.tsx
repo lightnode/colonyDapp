@@ -101,6 +101,7 @@ type Props = {
    * @NOTE This acts like an indicator that the sale is not currently active
    */
   isCurrentlyOnSale: boolean;
+  salePaused?: boolean;
 };
 
 interface FormValues {
@@ -143,6 +144,7 @@ const BuyTokens = ({
   maxUserPurchaseData,
   loadingSalePrice,
   loadingMaxUserPurchase,
+  salePaused = false,
 }: Props) => {
   const { username, ethereal, walletAddress, balance } = useLoggedInUser();
   const history = useHistory();
@@ -225,6 +227,7 @@ const BuyTokens = ({
   );
 
   const globalDisable =
+    salePaused ||
     !isCurrentlyOnSale ||
     !userHasProfile ||
     (isWhitelistExtensionEnabled && !isUserWhitelisted);
@@ -346,7 +349,7 @@ const BuyTokens = ({
   return (
     <div
       className={getMainClasses({}, styles, {
-        disabled: isSoldOut,
+        disabled: isSoldOut || salePaused,
       })}
     >
       <div className={styles.heading}>

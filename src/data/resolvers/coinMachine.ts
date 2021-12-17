@@ -590,11 +590,16 @@ export const coinMachineResolvers = ({
              *  the extension was installed
              */
             .filter(
-              ({ saleEndedAt, tokensAvailable }) =>
+              ({ saleEndedAt, tokensAvailable, tokensBought }) =>
                 parseInt(saleEndedAt, 10) <= currentBlockTime &&
                 parseInt(saleEndedAt, 10) >=
                   (extensionInstalled.timestamp || 1000) &&
-                bigNumberify(tokensAvailable).gt(0),
+                bigNumberify(tokensAvailable).gt(0) &&
+                /*
+                 * @WARNING This is super barbaric and is only here to account
+                 * the stopping of coin machine
+                 */
+                bigNumberify(tokensBought).gt(0),
             )
             /*
              * Price evolution calculations require us to go for oldest sale period
