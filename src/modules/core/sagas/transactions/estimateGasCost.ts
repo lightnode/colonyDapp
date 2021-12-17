@@ -54,6 +54,17 @@ export default function* estimateGasCost({
         wrappedTokenAbi,
         colonyManager.signer,
       );
+    } else if (
+      context ===
+      ((ExtendedReduxContext.VestingSimple as unknown) as ClientType)
+    ) {
+      // @ts-ignore
+      const vestingSimpleAbi = abis.vestingSimple.default.abi;
+      contextClient = new Contract(
+        identifier || '',
+        vestingSimpleAbi,
+        colonyManager.signer,
+      );
     } else {
       contextClient = yield colonyManager.getClient(context, identifier);
     }
