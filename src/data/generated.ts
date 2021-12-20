@@ -637,6 +637,7 @@ export type QueryTokensArgs = {
 
 export type QueryTransactionMessagesArgs = {
   transactionHash: Scalars['String'];
+  limit?: Maybe<Scalars['Int']>;
 };
 
 
@@ -755,6 +756,7 @@ export type SubscriptionTokenBoughtEventsArgs = {
 
 export type SubscriptionTransactionMessagesArgs = {
   transactionHash: Scalars['String'];
+  limit?: Maybe<Scalars['Int']>;
 };
 
 
@@ -8060,13 +8062,8 @@ export function useCommentCountSubscription(baseOptions?: Apollo.SubscriptionHoo
 export type CommentCountSubscriptionHookResult = ReturnType<typeof useCommentCountSubscription>;
 export type CommentCountSubscriptionResult = Apollo.SubscriptionResult<CommentCountSubscription>;
 export const CommentsDocument = gql`
-<<<<<<< HEAD
     subscription Comments($transactionHash: String!) {
   transactionMessages(transactionHash: $transactionHash) {
-=======
-    subscription Comments($transactionHash: String!, $limit: Int = 100) {
-  transactionMessages(transactionHash: $transactionHash, limit: $limit) {
->>>>>>> a9f43a385... Add: `unwrapTokenForMetacolony` vesting query
     transactionHash
     messages {
       ...TransactionMessage
