@@ -2,7 +2,6 @@
   display: block;
   margin: 0 0 20px 20px;
   height: 100%;
-  width: calc(100% + 360px);
 }
 
 @media (max-height: 960px) {
@@ -31,7 +30,7 @@
   margin-top: 40px;
   height: calc(100vh - 300px);
   min-height: 600px;
-  width: 1030px;
+  width: 650px;
   grid-template-columns: [buy] 340px [remaining] 220px [comments] auto;
   grid-template-rows: [time] 113px [tokens] 113px [totals] 113px [sales] 315px;
   column-gap: 20px;

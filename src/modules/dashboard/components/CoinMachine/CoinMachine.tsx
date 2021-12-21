@@ -365,7 +365,6 @@ const CoinMachine = ({
             periodTokens={periodTokens}
           />
         </div>
-        <div className={styles.comments} />
       </div>
     </div>
   );
