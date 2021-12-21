@@ -476,9 +476,10 @@ export const getEventsListData = (
         return checksummedColonyAddress;
       };
       const eventName = formatEventName(name);
-      const tokenAddress = ColonyAndExtensionsEvents.TokensBought
-        ? coinMachineSellToken
-        : token;
+      const tokenAddress =
+        eventName === ColonyAndExtensionsEvents.TokensBought
+          ? coinMachineSellToken
+          : token;
       return [
         ...processedEvents,
         {
