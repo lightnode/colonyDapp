@@ -85,10 +85,12 @@ interface Props {
   sellableToken?: TokenInfoQuery['tokenInfo'];
   purchaseToken?: TokenInfoQuery['tokenInfo'];
   periodInfo: PeriodInfo;
+  salePaused?: boolean;
 }
 
 const displayName = 'dashboard.CoinMachine.TokenSalesTable';
-export const PREV_PERIODS_LIMIT = 300;
+export const PREV_PERIODS_LIMIT = 100;
+export const PREV_PERIODS_LIMIT_ENDED = 500;
 
 const TokenSalesTable = ({
   periodTokens,
@@ -102,8 +104,12 @@ const TokenSalesTable = ({
     targetPerPeriod,
     maxPerPeriod,
   },
+  salePaused = false,
 }: Props) => {
-  const salePeriodQueryVariables = { colonyAddress, limit: PREV_PERIODS_LIMIT };
+  const periodsToShow = salePaused
+    ? PREV_PERIODS_LIMIT_ENDED
+    : PREV_PERIODS_LIMIT;
+  const salePeriodQueryVariables = { colonyAddress, limit: periodsToShow };
 
   const priceStatusHeading = useMemo(() => {
     if (!periodTokens) {
@@ -274,7 +280,7 @@ const TokenSalesTable = ({
             <FormattedMessage {...MSG.noTableData} />
           </p>
         )}
-        {!salePeriodsLoading && formattedData.length >= PREV_PERIODS_LIMIT && (
+        {!salePeriodsLoading && formattedData.length >= periodsToShow && (
           <p className={styles.hiddenDataMessage}>
             <FormattedMessage
               {...MSG.olderPeriodsHidden}
