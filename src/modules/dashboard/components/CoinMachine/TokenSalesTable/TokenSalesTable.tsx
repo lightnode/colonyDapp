@@ -88,7 +88,7 @@ interface Props {
 }
 
 const displayName = 'dashboard.CoinMachine.TokenSalesTable';
-export const PREV_PERIODS_LIMIT = 100;
+export const PREV_PERIODS_LIMIT = 300;
 
 const TokenSalesTable = ({
   periodTokens,
