@@ -151,9 +151,25 @@ const CoinMachine = ({
     pollInterval,
   });
 
-  const hasSaleStarted = !bigNumberify(
+  const coinMachineEmpty = bigNumberify(
     coinMachineTokenBalanceData?.coinMachineTokenBalance || 0,
   ).isZero();
+  const hasSoldTokens = !bigNumberify(
+    totalTokensData?.coinMachineTotalTokens?.totalSoldTokens || 0,
+  ).isZero();
+  const hasSoldAllTokens = bigNumberify(
+    totalTokensData?.coinMachineTotalTokens?.totalSoldTokens || 0,
+  ).eq(
+    bigNumberify(
+      totalTokensData?.coinMachineTotalTokens?.totalAvailableTokens || 0,
+    ),
+  );
+
+  const hasSaleStarted =
+    !coinMachineEmpty || (coinMachineEmpty && hasSoldTokens);
+  const isSalePaused = !hasSaleStarted
+    ? false
+    : coinMachineExtension?.details?.deprecated || hasSoldAllTokens;
 
   const {
     activeSoldTokens: activeSold = '0',
@@ -321,31 +337,38 @@ const CoinMachine = ({
                 maxUserPurchaseData={maxUserPurchaseData}
                 loadingSalePrice={loadingSalePrice}
                 loadingMaxUserPurchase={loadingMaxUserPurchase}
-                salePaused={coinMachineExtension?.details?.deprecated}
+                salePaused={isSalePaused}
               />
             </div>
             <div className={styles.timeRemaining}>
               <RemainingTime
-                appearance={{ theme: !isSoldOut ? 'white' : 'danger' }}
+                appearance={{
+                  // eslint-disable-next-line no-nested-ternary
+                  theme: isSalePaused
+                    ? 'white'
+                    : !isSoldOut
+                    ? 'white'
+                    : 'danger',
+                }}
                 value={hasSaleStarted ? timeRemaining : null}
                 periodLength={periodLength}
                 colonyAddress={colonyAddress}
                 syncing={currentSalePeriodLoading}
-                salePaused={coinMachineExtension?.details?.deprecated}
+                salePaused={isSalePaused}
               />
             </div>
             <div className={styles.tokensRemaining}>
               <RemainingTokens
                 tokenAmounts={periodTokens}
-                isTotalSale={false}
-                salePaused={coinMachineExtension?.details?.deprecated}
+                isTotalSale={!isSalePaused}
+                salePaused={isSalePaused}
               />
             </div>
             <div className={styles.tokensTotals}>
               <RemainingTokens
                 tokenAmounts={totalTokens}
-                isTotalSale
-                salePaused={coinMachineExtension?.details?.deprecated}
+                isTotalSale={!isSalePaused}
+                salePaused={isSalePaused}
               />
             </div>
           </>

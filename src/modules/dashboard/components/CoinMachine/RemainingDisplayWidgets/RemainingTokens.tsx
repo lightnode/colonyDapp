@@ -93,7 +93,7 @@ const RemainingTokens = ({
     <RemainingWidget
       widgetText={widgetText}
       appearance={appearance}
-      isWarning={showValueWarning}
+      isWarning={salePaused ? false : showValueWarning}
       displayedValue={
         salePaused ? (
           <span>

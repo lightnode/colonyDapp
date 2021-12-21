@@ -314,9 +314,11 @@ export const coinMachineResolvers = ({
             tokenClient.interface.parseLog(log),
           ),
         );
-        const totalAvailableTokens = transferEventsFromChain.reduce(
-          (acc, event) => event.values[2].add(acc),
-          '0',
+        const totalAvailableTokens = bigNumberify(
+          transferEventsFromChain.reduce(
+            (acc, event) => event.values[2].add(acc),
+            '0',
+          ),
         );
 
         return {
