@@ -386,6 +386,7 @@ const CoinMachine = ({
             sellableToken={sellableToken}
             purchaseToken={purchaseToken}
             periodTokens={periodTokens}
+            salePaused={isSalePaused}
           />
         </div>
       </div>
