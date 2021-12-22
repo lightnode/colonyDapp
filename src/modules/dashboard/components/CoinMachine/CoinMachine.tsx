@@ -360,14 +360,14 @@ const CoinMachine = ({
             <div className={styles.tokensRemaining}>
               <RemainingTokens
                 tokenAmounts={periodTokens}
-                isTotalSale={!isSalePaused}
+                isTotalSale={false}
                 salePaused={isSalePaused}
               />
             </div>
             <div className={styles.tokensTotals}>
               <RemainingTokens
                 tokenAmounts={totalTokens}
-                isTotalSale={!isSalePaused}
+                isTotalSale
                 salePaused={isSalePaused}
               />
             </div>
