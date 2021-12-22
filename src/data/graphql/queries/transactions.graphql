@@ -1,4 +1,4 @@
-query SubgraphColonyFundsClaimedEvents($colonyAddress: String!, $sortDirection: String = asc) {
+query SubgraphColonyFundsClaimedEvents($colonyAddress: String!, $sortDirection: String = asc, $skip: Int = 0, $first: Int = 1000) {
   colonyFundsClaimedEvents: events(
     orderBy: "timestamp",
     orderDirection: $sortDirection,
@@ -6,6 +6,8 @@ query SubgraphColonyFundsClaimedEvents($colonyAddress: String!, $sortDirection: 
       name_contains: "ColonyFundsClaimed"
       address: $colonyAddress,
     }
+    skip: $skip,
+    first: $first,
   ) {
     id
     name
@@ -24,7 +26,7 @@ query SubgraphColonyFundsClaimedEvents($colonyAddress: String!, $sortDirection: 
   }
 }
 
-query SubgraphPayoutClaimedEvents($colonyAddress: String!, $sortDirection: String = asc) {
+query SubgraphPayoutClaimedEvents($colonyAddress: String!, $sortDirection: String = asc, $skip: Int = 0, $first: Int = 1000) {
   payoutClaimedEvents: events(
     orderBy: "timestamp",
     orderDirection: $sortDirection,
@@ -32,6 +34,8 @@ query SubgraphPayoutClaimedEvents($colonyAddress: String!, $sortDirection: Strin
       name_contains: "PayoutClaimed"
       address: $colonyAddress,
     }
+    skip: $skip,
+    first: $first,
   ) {
     id
     name

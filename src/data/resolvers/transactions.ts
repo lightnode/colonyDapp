@@ -123,17 +123,32 @@ export const getColonyUnclaimedTransfers = async (
   const { provider } = colonyClient;
   const { tokenClient } = colonyClient;
 
-  const { data: colonyFundsClaimedEventsData } = await apolloClient.query<
-    SubgraphColonyFundsClaimedEventsQuery,
-    SubgraphColonyFundsClaimedEventsQueryVariables
-  >({
-    query: SubgraphColonyFundsClaimedEventsDocument,
-    variables: {
-      colonyAddress: colonyClient.address.toLowerCase(),
-    },
-  });
-  const colonyFundsClaimedEvents =
-    colonyFundsClaimedEventsData?.colonyFundsClaimedEvents || [];
+  let colonyFundsClaimedEvents = [];
+  let batch = 1;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    // eslint-disable-next-line no-await-in-loop
+    const { data: colonyFundsClaimedEventsData } = await apolloClient.query<
+      SubgraphColonyFundsClaimedEventsQuery,
+      SubgraphColonyFundsClaimedEventsQueryVariables
+    >({
+      query: SubgraphColonyFundsClaimedEventsDocument,
+      variables: {
+        colonyAddress: colonyClient.address.toLowerCase(),
+        skip: (batch - 1) * 1000,
+      },
+    });
+    // @ts-ignore
+    colonyFundsClaimedEvents = [
+      ...colonyFundsClaimedEvents,
+      ...(colonyFundsClaimedEventsData?.colonyFundsClaimedEvents || []),
+    ];
+    batch += 1;
+    if (!colonyFundsClaimedEventsData?.colonyFundsClaimedEvents?.length) {
+      break;
+    }
+  }
 
   const parsedClaimedTransferEvents = colonyFundsClaimedEvents.map((event) =>
     parseSubgraphEvent(event),

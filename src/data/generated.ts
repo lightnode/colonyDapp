@@ -2653,6 +2653,8 @@ export type SubgraphRoleEventsQuery = { colonyRoleSetEvents: Array<(
 export type SubgraphColonyFundsClaimedEventsQueryVariables = Exact<{
   colonyAddress: Scalars['String'];
   sortDirection?: Maybe<Scalars['String']>;
+  skip?: Maybe<Scalars['Int']>;
+  first?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -2671,6 +2673,8 @@ export type SubgraphColonyFundsClaimedEventsQuery = { colonyFundsClaimedEvents: 
 export type SubgraphPayoutClaimedEventsQueryVariables = Exact<{
   colonyAddress: Scalars['String'];
   sortDirection?: Maybe<Scalars['String']>;
+  skip?: Maybe<Scalars['Int']>;
+  first?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -7350,8 +7354,8 @@ export type SubgraphRoleEventsQueryHookResult = ReturnType<typeof useSubgraphRol
 export type SubgraphRoleEventsLazyQueryHookResult = ReturnType<typeof useSubgraphRoleEventsLazyQuery>;
 export type SubgraphRoleEventsQueryResult = Apollo.QueryResult<SubgraphRoleEventsQuery, SubgraphRoleEventsQueryVariables>;
 export const SubgraphColonyFundsClaimedEventsDocument = gql`
-    query SubgraphColonyFundsClaimedEvents($colonyAddress: String!, $sortDirection: String = asc) {
-  colonyFundsClaimedEvents: events(orderBy: "timestamp", orderDirection: $sortDirection, where: {name_contains: "ColonyFundsClaimed", address: $colonyAddress}) {
+    query SubgraphColonyFundsClaimedEvents($colonyAddress: String!, $sortDirection: String = asc, $skip: Int = 0, $first: Int = 1000) {
+  colonyFundsClaimedEvents: events(orderBy: "timestamp", orderDirection: $sortDirection, where: {name_contains: "ColonyFundsClaimed", address: $colonyAddress}, skip: $skip, first: $first) {
     id
     name
     args
@@ -7384,6 +7388,8 @@ export const SubgraphColonyFundsClaimedEventsDocument = gql`
  *   variables: {
  *      colonyAddress: // value for 'colonyAddress'
  *      sortDirection: // value for 'sortDirection'
+ *      skip: // value for 'skip'
+ *      first: // value for 'first'
  *   },
  * });
  */
@@ -7397,8 +7403,8 @@ export type SubgraphColonyFundsClaimedEventsQueryHookResult = ReturnType<typeof 
 export type SubgraphColonyFundsClaimedEventsLazyQueryHookResult = ReturnType<typeof useSubgraphColonyFundsClaimedEventsLazyQuery>;
 export type SubgraphColonyFundsClaimedEventsQueryResult = Apollo.QueryResult<SubgraphColonyFundsClaimedEventsQuery, SubgraphColonyFundsClaimedEventsQueryVariables>;
 export const SubgraphPayoutClaimedEventsDocument = gql`
-    query SubgraphPayoutClaimedEvents($colonyAddress: String!, $sortDirection: String = asc) {
-  payoutClaimedEvents: events(orderBy: "timestamp", orderDirection: $sortDirection, where: {name_contains: "PayoutClaimed", address: $colonyAddress}) {
+    query SubgraphPayoutClaimedEvents($colonyAddress: String!, $sortDirection: String = asc, $skip: Int = 0, $first: Int = 1000) {
+  payoutClaimedEvents: events(orderBy: "timestamp", orderDirection: $sortDirection, where: {name_contains: "PayoutClaimed", address: $colonyAddress}, skip: $skip, first: $first) {
     id
     name
     args
@@ -7431,6 +7437,8 @@ export const SubgraphPayoutClaimedEventsDocument = gql`
  *   variables: {
  *      colonyAddress: // value for 'colonyAddress'
  *      sortDirection: // value for 'sortDirection'
+ *      skip: // value for 'skip'
+ *      first: // value for 'first'
  *   },
  * });
  */
