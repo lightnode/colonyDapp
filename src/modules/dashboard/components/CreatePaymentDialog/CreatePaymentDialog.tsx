@@ -10,7 +10,7 @@ import { ActionForm } from '~core/Fields';
 
 import { Address } from '~types/index';
 import { ActionTypes } from '~redux/index';
-import { useMembersSubscription } from '~data/index';
+import { useMembersSubscription, useBannedUsersQuery } from '~data/index';
 import { getTokenDecimalsWithFallback } from '~utils/tokens';
 import { pipe, withMeta, mapPayload } from '~utils/actions';
 import { WizardDialogType } from '~utils/hooks';
@@ -91,6 +91,12 @@ const CreatePaymentDialog = ({
     variables: { colonyAddress },
   });
 
+  const { data: bannedMembers } = useBannedUsersQuery({
+    variables: {
+      colonyAddress,
+    },
+  });
+
   const transform = useCallback(
     pipe(
       mapPayload((payload) => {
@@ -167,6 +173,7 @@ const CreatePaymentDialog = ({
               isVotingExtensionEnabled={isVotingExtensionEnabled}
               back={() => callStep(prevStep)}
               subscribedUsers={colonyMembers?.subscribedUsers || []}
+              bannedUsers={bannedMembers?.bannedUsers || []}
               ethDomainId={ethDomainId}
             />
           </Dialog>

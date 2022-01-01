@@ -32,6 +32,7 @@ import {
   useLoggedInUser,
   useTokenBalancesForDomainsLazyQuery,
   AnyUser,
+  BannedUsersQuery,
 } from '~data/index';
 import {
   getBalanceFromToken,
@@ -106,6 +107,7 @@ const MSG = defineMessages({
 });
 interface Props extends ActionDialogProps {
   subscribedUsers: AnyUser[];
+  bannedUsers: BannedUsersQuery['bannedUsers'];
   ethDomainId?: number;
 }
 
@@ -121,6 +123,7 @@ const CreatePaymentDialogForm = ({
   colony: { colonyAddress, domains, tokens },
   isVotingExtensionEnabled,
   subscribedUsers,
+  bannedUsers,
   handleSubmit,
   setFieldValue,
   isSubmitting,
@@ -169,6 +172,32 @@ const CreatePaymentDialogForm = ({
       ),
 
     [domains],
+  );
+
+  const usersWithGoodStanding = useMemo(
+    () =>
+      subscribedUsers
+        .map((user) => {
+          const {
+            profile: { walletAddress: currentUserWalletAddress },
+          } = user;
+          const isUserBanned = bannedUsers.find(
+            ({
+              id: bannedUserWalletAddress,
+              banned,
+            }: {
+              id: Address;
+              banned: boolean;
+            }) =>
+              banned && bannedUserWalletAddress === currentUserWalletAddress,
+          );
+          return {
+            ...user,
+            banned: !!isUserBanned,
+          };
+        })
+        .filter(({ banned }) => !banned),
+    [bannedUsers, subscribedUsers],
   );
 
   const [
@@ -396,7 +425,7 @@ const CreatePaymentDialogForm = ({
         <div className={styles.singleUserContainer}>
           <SingleUserPicker
             appearance={{ width: 'wide' }}
-            data={subscribedUsers}
+            data={usersWithGoodStanding}
             label={MSG.to}
             name="recipient"
             filter={filterUserSelection}
