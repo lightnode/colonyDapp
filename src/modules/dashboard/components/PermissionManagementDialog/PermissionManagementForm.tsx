@@ -16,7 +16,12 @@ import MotionDomainSelect from '~dashboard/MotionDomainSelect';
 import HookedUserAvatar from '~users/HookedUserAvatar';
 
 import { Address } from '~types/index';
-import { useMembersSubscription, AnyUser, Colony } from '~data/index';
+import {
+  useMembersSubscription,
+  useBannedUsersQuery,
+  AnyUser,
+  Colony,
+} from '~data/index';
 import { useTransformer } from '~utils/hooks';
 import { getAllUserRolesForDomain } from '../../../transformers';
 import { availableRoles } from './constants';
@@ -42,7 +47,7 @@ const MSG = defineMessages({
   },
   annotation: {
     id: `dashboard.PermissionManagementDialog.PermissionManagementForm.annotation`,
-    defaultMessage: 'Explain why you’re making these changes (optional)',
+    defaultMessage: `Explain why you're making these changes (optional)`,
   },
   selectUser: {
     id: `dashboard.PermissionManagementDialog.PermissionManagementForm.selectUser`,
@@ -94,6 +99,12 @@ const PermissionManagementForm = ({
   values,
 }: Props & FormikProps<FormValues>) => {
   const { data: colonyMembers } = useMembersSubscription({
+    variables: {
+      colonyAddress,
+    },
+  });
+
+  const { data: bannedMembers } = useBannedUsersQuery({
     variables: {
       colonyAddress,
     },
@@ -183,19 +194,31 @@ const PermissionManagementForm = ({
     [directDomainRoles, domainRoles],
   );
 
-  const members = (colonyMembers?.subscribedUsers || []).map((user) => {
-    const {
-      profile: { walletAddress },
-    } = user;
-    const domainRole = domainRolesArray.find(
-      (rolesObject) => rolesObject.userAddress === walletAddress,
-    );
-    return {
-      ...user,
-      roles: domainRole ? domainRole.roles : [],
-      directRoles: domainRole ? domainRole.directRoles : [],
-    };
-  });
+  const members = (colonyMembers?.subscribedUsers || [])
+    .map((user) => {
+      const {
+        profile: { walletAddress },
+      } = user;
+      const domainRole = domainRolesArray.find(
+        (rolesObject) => rolesObject.userAddress === walletAddress,
+      );
+      const isUserBanned = (bannedMembers?.bannedUsers || []).find(
+        ({
+          id: bannedUserWalletAddress,
+          banned,
+        }: {
+          id: Address;
+          banned: boolean;
+        }) => banned && bannedUserWalletAddress === walletAddress,
+      );
+      return {
+        ...user,
+        roles: domainRole ? domainRole.roles : [],
+        directRoles: domainRole ? domainRole.directRoles : [],
+        banned: !!isUserBanned,
+      };
+    })
+    .filter(({ banned }) => !banned);
 
   const handleDomainChange = useCallback(
     (domainValue: string) => {
