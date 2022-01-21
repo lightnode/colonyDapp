@@ -87,7 +87,10 @@ const MSG = defineMessages({
     defaultMessage: `{isSmiteAction, select,
       true {max: }
       false {}
-    }{userReputationAmount} pts ({userPercentageReputation}%)`,
+    }{userReputationAmount} {userReputationAmount, plural,
+      one {pt}
+      other {pts}
+    } ({userPercentageReputation}%)`,
   },
 });
 
@@ -353,6 +356,7 @@ const ManageReputationDialogForm = ({
               numeral: true,
               // @ts-ignore
               tailPrefix: true,
+              numeralDecimalScale: 10,
             }}
             elementOnly
             maxButtonParams={
