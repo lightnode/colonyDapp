@@ -68,19 +68,6 @@ const MemberReputation = ({
 
   return (
     <div>
-      <Icon
-        name="star"
-        appearance={{ size: 'extraTiny' }}
-        className={styles.icon}
-        title={
-          userPercentageReputation
-            ? MSG.starReputationTitle
-            : MSG.starNoReputationTitle
-        }
-        titleValues={{
-          reputation: userPercentageReputation,
-        }}
-      />
       {!userPercentageReputation && (
         <div className={styles.reputation}>— %</div>
       )}
@@ -96,6 +83,19 @@ const MemberReputation = ({
             suffix="%"
           />
         )}
+      <Icon
+        name="star"
+        appearance={{ size: 'extraTiny' }}
+        className={styles.icon}
+        title={
+          userPercentageReputation
+            ? MSG.starReputationTitle
+            : MSG.starNoReputationTitle
+        }
+        titleValues={{
+          reputation: userPercentageReputation,
+        }}
+      />
     </div>
   );
 };
