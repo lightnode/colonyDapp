@@ -11,12 +11,11 @@
 }
 
 .delegate {
-  height: toggleHeight;
-  width: toggleWidth;
+  height: 0px;
+  width: 0px;
   position: absolute;
-  z-index: var(--z-index-positioning);
+  overflow: hidden;
   opacity: 0;
-  cursor: pointer;
 }
 
 .delegate:disabled {
@@ -32,6 +31,7 @@
   border-radius: 22px;
   background-color: white;
   box-shadow: inset 0px 1px 4px 2px rgba(14, 37, 88, 0.09);
+  cursor: pointer;
 }
 
 .toggleDisabled {

@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useField } from 'formik';
 import { PopperProps } from 'react-popper';
 import { MessageDescriptor } from 'react-intl';
+import { nanoid } from 'nanoid';
 
 import InputLabel from '~core/Fields/InputLabel';
 import QuestionMarkTooltip from '~core/QuestionMarkTooltip';
@@ -66,6 +67,8 @@ const Toggle = ({
     [onChange, onChangeCallback, value],
   );
 
+  const [toggleId] = useState(nanoid());
+
   return (
     <div className={styles.container}>
       {!elementOnly && label && (
@@ -76,19 +79,22 @@ const Toggle = ({
         />
       )}
       <div>
-        <input
-          name={name}
-          type="checkbox"
-          disabled={disabled}
-          checked={value}
-          aria-checked={value}
-          aria-disabled={disabled}
-          className={styles.delegate}
-          onChange={handleOnChange}
-        />
-        <span className={disabled ? styles.toggleDisabled : styles.toggle}>
-          <span className={value ? mainClasses : styles.toggleSwitch} />
-        </span>
+        <label htmlFor={toggleId}>
+          <span className={disabled ? styles.toggleDisabled : styles.toggle}>
+            <span className={value ? mainClasses : styles.toggleSwitch} />
+          </span>
+          <input
+            name={name}
+            type="checkbox"
+            disabled={disabled}
+            checked={value}
+            aria-checked={value}
+            aria-disabled={disabled}
+            className={styles.delegate}
+            onChange={handleOnChange}
+            id={toggleId}
+          />
+        </label>
       </div>
       {tooltipText && (
         <QuestionMarkTooltip
